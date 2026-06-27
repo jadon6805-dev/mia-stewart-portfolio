@@ -466,7 +466,15 @@ export default function App() {
       desc:'Keeping shelves stocked and organised in a busy supermarket environment. Shows up, works hard, and gets the job done — every shift.' },
   ]
 
-  const [lightbox, setLightbox] = useState(null)
+  const [lightbox,  setLightbox]  = useState(null)
+  const [menuOpen,  setMenuOpen]  = useState(false)
+  const [isMobile,  setIsMobile]  = useState(() => window.innerWidth < 768)
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   const gallery = [
     { cap:'Sunset View', img:'/sunset-view.jpg', grad:`linear-gradient(135deg,#293681,#111e47)`, glow:`rgba(66,116,217,0.6)`,  col:'1/3', row:'1/2' },
@@ -559,7 +567,8 @@ export default function App() {
           textDecoration:'none', letterSpacing:'0.06em',
           display:'inline-block',
         }}>MS.</a>
-        <ul style={{ display:'flex', gap:36, listStyle:'none' }}>
+        {/* desktop links */}
+        <ul className="nav-links" style={{ display:'flex', gap:36, listStyle:'none' }}>
           {navLinks.map(([label, href]) => (
             <li key={label}>
               <a href={href} style={{
@@ -573,7 +582,38 @@ export default function App() {
             </li>
           ))}
         </ul>
+
+        {/* hamburger (mobile only) */}
+        <button className="hamburger" onClick={() => setMenuOpen(o => !o)} style={{
+          display:'none', flexDirection:'column', gap:5, background:'none',
+          border:'none', cursor:'pointer', padding:4,
+        }}>
+          <span style={{ display:'block', width:22, height:2, background: CREAM, borderRadius:2, transition:'all .3s', transform: menuOpen ? 'rotate(45deg) translate(5px,5px)' : 'none' }}/>
+          <span style={{ display:'block', width:22, height:2, background: CREAM, borderRadius:2, transition:'all .3s', opacity: menuOpen ? 0 : 1 }}/>
+          <span style={{ display:'block', width:22, height:2, background: CREAM, borderRadius:2, transition:'all .3s', transform: menuOpen ? 'rotate(-45deg) translate(5px,-5px)' : 'none' }}/>
+        </button>
       </nav>
+
+      {/* mobile menu overlay */}
+      {menuOpen && (
+        <div style={{
+          position:'fixed', top:0, left:0, right:0, bottom:0, zIndex:99,
+          background:'rgba(10,18,48,0.98)',
+          backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
+          display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:40,
+        }} onClick={() => setMenuOpen(false)}>
+          {navLinks.map(([label, href]) => (
+            <a key={label} href={href} onClick={() => setMenuOpen(false)} style={{
+              fontFamily:"'Bebas Neue',cursive,sans-serif",
+              fontSize:'3rem', letterSpacing:'0.1em', color: CREAM,
+              textDecoration:'none', transition:'color .2s',
+            }}
+            onMouseEnter={e => e.target.style.color = ACCENT}
+            onMouseLeave={e => e.target.style.color = CREAM}
+            >{label}</a>
+          ))}
+        </div>
+      )}
 
       {/* ════════════ HERO ════════════ */}
       <section id="hero" style={{
@@ -709,7 +749,7 @@ export default function App() {
           background:`radial-gradient(circle, rgba(66,116,217,0.12) 0%, transparent 70%)` }}/>
         <div style={{ position:'absolute', bottom:'-5%', left:'5%', width:350, height:350, borderRadius:'50%', pointerEvents:'none',
           background:`radial-gradient(circle, rgba(149,204,221,0.08) 0%, transparent 70%)` }}/>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1.1fr', gap:56, alignItems:'start', position:'relative' }}>
+        <div className="about-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1.1fr', gap:56, alignItems:'start', position:'relative' }}>
 
           <div>
             <div className="reveal" style={{ ...eyebrowStyle, marginBottom:32 }}>
@@ -834,7 +874,7 @@ export default function App() {
           background:`radial-gradient(circle, rgba(41,54,129,0.35) 0%, transparent 65%)` }}/>
         <div style={{ position:'absolute', bottom:'10%', right:'-5%', width:400, height:400, borderRadius:'50%', pointerEvents:'none',
           background:`radial-gradient(circle, rgba(208,231,230,0.07) 0%, transparent 65%)` }}/>
-        <div style={{
+        <div className="exp-header" style={{
           display:'flex', justifyContent:'space-between', alignItems:'flex-end',
           marginBottom:72, borderBottom:`1px solid ${BORDER}`, paddingBottom:40,
         }}>
@@ -849,7 +889,7 @@ export default function App() {
         </div>
 
         {experience.map(({ num, period, role, company, desc, numCol }) => (
-          <div key={num} className="reveal" style={{
+          <div key={num} className="reveal exp-card" style={{
             position:'relative', overflow:'hidden',
             border:`1px solid ${BORDER}`,
             borderRadius:2,
@@ -871,7 +911,7 @@ export default function App() {
               pointerEvents:'none',
             }}>{company}</div>
 
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1.4fr', gap:80, alignItems:'center' }}>
+            <div className="exp-inner-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1.4fr', gap:80, alignItems:'center' }}>
               {/* left */}
               <div>
                 <div style={{ fontFamily:"'Space Mono',monospace", fontSize:'0.65rem', color: numCol, letterSpacing:'0.2em', marginBottom:20 }}>{num}</div>
@@ -918,7 +958,7 @@ export default function App() {
       <section id="gallery" className="popout" style={{
         background: SURF1, padding:'80px 64px', willChange:'clip-path',
       }}>
-        <div style={{
+        <div className="gallery-header" style={{
           display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:60,
         }}>
           <div className="reveal" style={eyebrowStyle}>
@@ -931,7 +971,7 @@ export default function App() {
           }}>Moments worth capturing.</h2>
         </div>
 
-        <div style={{
+        <div className="gallery-bento" style={{
           display:'grid',
           gridTemplateColumns:'1fr 1fr 1.4fr',
           gridTemplateRows:'220px 220px 220px',
@@ -987,7 +1027,7 @@ export default function App() {
           background:'rgba(10,18,48,0.96)',
           display:'flex', alignItems:'center', justifyContent:'center',
         }}>
-          <button onClick={e => { e.stopPropagation(); setLightbox(i => (i + gallery.length - 1) % gallery.length) }} style={{
+          <button className="lightbox-nav" onClick={e => { e.stopPropagation(); setLightbox(i => (i + gallery.length - 1) % gallery.length) }} style={{
             position:'absolute', left:24, top:'50%', transform:'translateY(-50%)',
             background:'none', border:`1px solid ${ACCENT_A(0.3)}`,
             color: CREAM, width:52, height:52, borderRadius:'50%',
@@ -997,7 +1037,7 @@ export default function App() {
           onMouseEnter={e => { e.currentTarget.style.background=ACCENT_A(0.1); e.currentTarget.style.borderColor=ACCENT_A(0.6) }}
           onMouseLeave={e => { e.currentTarget.style.background='none'; e.currentTarget.style.borderColor=ACCENT_A(0.3) }}>←</button>
 
-          <div onClick={e => e.stopPropagation()} style={{
+          <div className="lightbox-img" onClick={e => e.stopPropagation()} style={{
             width:'60vw', maxWidth:700, aspectRatio:'4/3',
             borderRadius:12, overflow:'hidden', position:'relative',
             background: gallery[lightbox].grad,
@@ -1014,7 +1054,7 @@ export default function App() {
             }}>{gallery[lightbox].cap}</div>
           </div>
 
-          <button onClick={e => { e.stopPropagation(); setLightbox(i => (i + 1) % gallery.length) }} style={{
+          <button className="lightbox-nav" onClick={e => { e.stopPropagation(); setLightbox(i => (i + 1) % gallery.length) }} style={{
             position:'absolute', right:24, top:'50%', transform:'translateY(-50%)',
             background:'none', border:`1px solid ${ACCENT_A(0.3)}`,
             color: CREAM, width:52, height:52, borderRadius:'50%',
@@ -1186,18 +1226,36 @@ export default function App() {
         footer { animation: fadeSlideUp .6s ease both; animation-delay: .2s; }
 
         @media(max-width:900px){
-          nav ul { display:none }
-          #about > div { grid-template-columns:1fr !important }
-          #experience > div:last-child { grid-template-columns:1fr !important }
-          #gallery > div:last-child { grid-template-columns:1fr !important; grid-template-rows:auto !important }
-          #gallery .g-item { grid-row:auto !important }
+          .nav-links { display:none !important }
+          .hamburger { display:flex !important }
+          .about-grid { grid-template-columns:1fr !important; gap:32px !important }
+          .about-grid > div:last-child { padding-top:0 !important }
+          .exp-inner-grid { grid-template-columns:1fr !important; gap:32px !important }
+          .exp-card { padding:40px 36px !important }
+          .gallery-bento { grid-template-columns:1fr 1fr !important; grid-template-rows:auto !important }
+          .gallery-bento .g-item { grid-column:auto !important; grid-row:auto !important; height:200px }
+          .hero-meta { flex-wrap:wrap; gap:8px !important }
+          .hero-scroll { display:none !important }
+          #hero { padding:0 32px !important }
+          #about,#skills,#experience,#gallery { padding:64px 32px !important }
+          #contact { padding:80px 32px !important }
+          footer { padding:24px 32px !important }
+          .gallery-header { flex-direction:column !important; align-items:flex-start !important; gap:12px !important }
+          .exp-header { flex-direction:column !important; align-items:flex-start !important; gap:12px !important; margin-bottom:40px !important }
         }
-        @media(max-width:600px){
+        @media(max-width:500px){
           body { cursor:auto }
-          section { padding:80px 24px !important }
-          nav { padding:16px 24px !important }
-          footer { padding:24px !important }
+          .gallery-bento { grid-template-columns:1fr !important }
+          .gallery-bento .g-item { height:220px }
+          #hero { padding:0 20px !important }
+          #about,#skills,#experience,#gallery { padding:56px 20px !important }
+          #contact { padding:64px 20px !important }
+          nav { padding:14px 20px !important }
+          footer { padding:20px !important }
           .skill-row { width:100% !important; border-right:none !important }
+          .stat-grid { grid-template-columns:1fr 1fr !important }
+          .lightbox-img { width:92vw !important }
+          .lightbox-nav { display:none !important }
         }
         @media(prefers-reduced-motion:reduce){
           *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important }
